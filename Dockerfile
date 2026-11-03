@@ -2,20 +2,25 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# Create a non-root application user
-RUN useradd --create-home appuser && \
-    chown appuser:appuser /app
+# Create a non-root user
+RUN useradd --create-home appuser
 
-# Install Python dependencies
+# Install dependencies
 COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy only the files required to run the application
-COPY --chown=appuser:appuser app.py ./
-COPY --chown=appuser:appuser templates/ ./templates/
+# Copy application code as root-owned, read-only for appuser
+COPY app.py ./
+COPY templates/ ./templates/
 
-# Run application as non-root user
+# Give application user write permission only to runtime directory
+RUN mkdir -p /app/data && \
+    chown appuser:appuser /app/data && \
+    chmod -R a-w /app && \
+    chmod u+w /app/data
+
+# Run as non-root user
 USER appuser
 
 EXPOSE 5000
