@@ -1,0 +1,59 @@
+pipeline {
+
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                echo 'Checking out source code'
+                checkout scm
+            }
+        }
+
+        stage('Environment Check') {
+            steps {
+                sh 'python3 --version'
+                sh 'git --version'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                    python3 -m venv .venv
+                    . .venv/bin/activate
+                    pip install -r requirements.txt
+                '''
+            }
+        }
+
+        stage('Run Unit Tests') {
+            steps {
+                sh '''
+                    . .venv/bin/activate
+                    mkdir -p reports
+                    python -m pytest -v --junitxml=reports/junit.xml
+                '''
+            }
+        }
+    }
+
+    post {
+
+        always {
+            junit(
+                testResults: 'reports/junit.xml',
+                allowEmptyResults: true
+            )
+        }
+
+        success {
+            echo 'BUILD SUCCESSFUL'
+        }
+
+        failure {
+            echo 'BUILD FAILED'
+        }
+    }
+}
