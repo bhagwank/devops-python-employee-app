@@ -86,6 +86,16 @@ pipeline {
 		}
 	    }
 	}
+	stage('Build Docker Image') {
+	    steps {
+		echo 'Building Employee App Docker Image'
+
+		sh '''
+		    docker build -t python-employee-app:${BUILD_NUMBER} .
+		    docker tag python-employee-app:${BUILD_NUMBER} python-employee-app:latest
+		'''
+	    }
+	}
     }
 
     post {
