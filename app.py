@@ -1,6 +1,7 @@
+
+# Jenkins automatic polling test
 from flask import Flask, request, jsonify
 import sqlite3
-# Jenkins automatic polling test
 app = Flask(__name__)
 
 DATABASE = "employees.db"
