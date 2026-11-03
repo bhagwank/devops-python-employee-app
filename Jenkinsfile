@@ -47,7 +47,36 @@ pipeline {
                 '''
             }
         }
+	stage('Verify SonarQube Token') {
+	    steps {
+		withSonarQubeEnv('SonarQube') {
+		    sh '''
+			python3 - <<'PY'
+	import os
+	import urllib.request
+	import urllib.error
+	import base64
 
+	token = os.environ.get("SONAR_AUTH_TOKEN", "")
+	host = os.environ.get("SONAR_HOST_URL", "")
+
+	credentials = base64.b64encode((token + ":").encode()).decode()
+
+	request = urllib.request.Request(
+	    host + "/api/authentication/validate",
+	    headers={"Authorization": "Basic " + credentials}
+	)
+
+	try:
+	    with urllib.request.urlopen(request) as response:
+		print("SonarQube authentication response:", response.read().decode())
+	except urllib.error.HTTPError as error:
+	    print("SonarQube authentication HTTP status:", error.code)
+	PY
+		    '''
+		}
+	    }
+	}
 	stage('SonarQube Analysis') {
             steps {
                 script {
