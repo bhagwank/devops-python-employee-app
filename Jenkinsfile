@@ -54,19 +54,6 @@ pipeline {
                     def scannerHome = tool 'SonarScanner'
 
                     withSonarQubeEnv('SonarQube') {
-			sh '''
-                    	if [ -n "$SONAR_AUTH_TOKEN" ]; then
-                        	echo "SONAR_AUTH_TOKEN is available"
-                    	else
-                        	echo "SONAR_AUTH_TOKEN is missing"
-                    	fi
-
-                    	if [ -n "$SONAR_TOKEN" ]; then
-                        	echo "SONAR_TOKEN is available"
-                    	else
-                        	echo "SONAR_TOKEN is missing"
-                    	fi
-                	'''		
                         sh """
 				export SONAR_TOKEN="\$SONAR_AUTH_TOKEN"
 				${scannerHome}/bin/sonar-scanner
