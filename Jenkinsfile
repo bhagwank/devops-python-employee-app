@@ -67,7 +67,10 @@ pipeline {
                         	echo "SONAR_TOKEN is missing"
                     	fi
                 	'''		
-                        sh "${scannerHome}/bin/sonar-scanner"
+                        sh """
+				export SONAR_TOKEN="\$SONAR_AUTH_TOKEN"
+				${scannerHome}/bin/sonar-scanner
+			"""
                     }
                 }
             }
